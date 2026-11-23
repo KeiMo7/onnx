@@ -1,0 +1,27 @@
+Gate: passed=True exit_code=0 reasons=[]
+ONNX Shape Inference Diagnostic Report
+========================================
+Mode: lenient
+Summary: tensors=4 nodes=3 subgraphs=0 conflicts=0 missing_op=1 inference_errors=0
+
+[root graph]
+  Tensors:
+    X
+      axis 0: 4 [KNOWN] sources: input_decl
+      axis 1: 8 [KNOWN] sources: input_decl
+    Y
+      rank: unknown
+    Z
+      rank: unknown
+    mid
+      rank: unknown
+  Nodes:
+    node#0 MyCustomOp domain=com.example.custom inputs=(X) outputs=(mid) [missing-definition]
+      error: no op definition registered for 'MyCustomOp' in domain 'com.example.custom'
+    node#1 Relu domain=ai.onnx inputs=(mid) outputs=(Y) [skipped]
+      error: not inferred: an input comes from a node with no op definition
+    node#2 Relu domain=ai.onnx inputs=(Y) outputs=(Z) [skipped]
+      error: not inferred: an input comes from a node with no op definition
+
+Conflicts:
+  (none)

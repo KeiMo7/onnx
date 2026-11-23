@@ -1,0 +1,44 @@
+Gate: passed=False exit_code=1 reasons=['conflicts 1 exceed threshold 0']
+ONNX Shape Inference Diagnostic Report
+========================================
+Mode: lenient
+Summary: tensors=10 nodes=3 subgraphs=2 conflicts=1 missing_op=0 inference_errors=0
+Unknown dimensions by reason: unknown_conflict=1
+
+[root graph]
+  Tensors:
+    add_value
+      axis 0: 1 [KNOWN] sources: input_decl
+    cond
+      axis 0: 1 [KNOWN] sources: input_decl
+    current_value
+      axis 0: 1 [KNOWN] sources: input_decl
+    if_output
+      axis 0: unknown_conflict [UNKNOWN/CONFLICT] sources: node#0(Add), node#0(Sub)
+        note: branch conflict: 1 (node#0(Add)) vs 5 (node#0(Sub))
+    sub_value
+      axis 0: 5 [KNOWN] sources: input_decl
+  Nodes:
+    node#0 If domain=ai.onnx inputs=(cond) outputs=(if_output) [ok]
+
+[subgraph via node path [0]]
+  boundary graph attr=then_branch parent_node#0 inputs=(cond, current_value, add_value) outputs=(then_output)
+  boundary graph attr=else_branch parent_node#0 inputs=(cond, current_value, sub_value) outputs=(else_output)
+  Tensors:
+    add_value
+      axis 0: 1 [KNOWN] sources: input_decl
+    current_value
+      axis 0: 1 [KNOWN] sources: input_decl
+    else_output
+      axis 0: 5 [KNOWN] sources: node#0(Sub)
+    sub_value
+      axis 0: 5 [KNOWN] sources: input_decl
+    then_output
+      axis 0: 1 [KNOWN] sources: node#0(Add)
+  Nodes:
+    node#0 Add domain=ai.onnx inputs=(current_value, add_value) outputs=(then_output) [ok]
+    node#0 Sub domain=ai.onnx inputs=(current_value, sub_value) outputs=(else_output) [ok]
+
+Conflicts:
+  tensor=if_output scope=root axis=0: branch conflict: 1 (node#0(Add)) vs 5 (node#0(Sub))
+    retained sources: node#0(Add) -> value=1; node#0(Sub) -> value=5

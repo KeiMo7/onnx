@@ -1,0 +1,49 @@
+Gate: passed=True exit_code=0 reasons=[]
+ONNX Shape Inference Diagnostic Report
+========================================
+Mode: lenient
+Summary: tensors=10 nodes=4 subgraphs=1 conflicts=0 missing_op=0 inference_errors=0
+Unknown dimensions by reason: unknown_control_flow=2
+
+[root graph]
+  Tensors:
+    keep
+      rank: unknown
+    max_trip
+      rank: unknown
+    state_in
+      axis 0: 2 [KNOWN] sources: input_decl
+      axis 1: 3 [KNOWN] sources: input_decl
+    state_out
+      axis 0: unknown_control_flow [UNKNOWN/CONTROL-FLOW] sources: input_decl, node#2(Identity)
+        note: loop-carried shape cannot be proven invariant across iterations; body claims 2
+      axis 1: unknown_control_flow [UNKNOWN/CONTROL-FLOW] sources: input_decl, node#2(Identity)
+        note: loop-carried shape cannot be proven invariant across iterations; body claims 3
+  Nodes:
+    node#0 Loop domain=ai.onnx inputs=(max_trip, keep, state_in) outputs=(state_out) [ok]
+
+[subgraph via node path [0]]
+  boundary graph attr=body parent_node#0 inputs=(max_trip, keep, state_in) outputs=(cond_out, state_next)
+  Tensors:
+    cond_in
+      rank: unknown
+    cond_out
+      rank: unknown
+    i
+      rank: unknown
+    state
+      axis 0: 2 [KNOWN] sources: input_decl
+      axis 1: 3 [KNOWN] sources: input_decl
+    state_next
+      axis 0: 2 [KNOWN] sources: input_decl, node#2(Identity)
+      axis 1: 3 [KNOWN] sources: input_decl, node#2(Identity)
+    updated
+      axis 0: 2 [KNOWN] sources: node#0(Add)
+      axis 1: 3 [KNOWN] sources: node#0(Add)
+  Nodes:
+    node#0 Add domain=ai.onnx inputs=(state, state) outputs=(updated) [ok]
+    node#1 Identity domain=ai.onnx inputs=(cond_in) outputs=(cond_out) [ok]
+    node#2 Identity domain=ai.onnx inputs=(updated) outputs=(state_next) [ok]
+
+Conflicts:
+  (none)
